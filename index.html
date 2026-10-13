@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Concept mockup of a personalized Next Best Step checklist. Not connected to Cheerio. Sample data only.">
+<title>Next Best Step Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: left nav + one focused column. One highlighted recommendation up top, the other steps as a quiet list below. */
+:root{
+  --bg:#F2F5F4; --surface:#FFFFFF; --surface2:#E8EEEC; --ink:#14231F; --muted:#586964; --line:#D6DFDC;
+  --accent:#0F6E5C; --accent-ink:#FFFFFF; --accent-soft:#DAEFE8;
+  --ok:#1B7443; --ok-bg:#DCF2E3; --warn:#7A4E00; --warn-bg:#FFEFCF; --crit:#9E2D1B; --crit-bg:#FBE3DD;
+  --bubble:#DCF3E6; --bubble-ink:#10281F; --chat-bg:#EDE8DF;
+  --font-display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --font-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1614; --surface:#15221F; --surface2:#1D2E2A; --ink:#E6F0ED; --muted:#9BB0AA; --line:#2A3C37;
+    --accent:#4FC3A8; --accent-ink:#06211A; --accent-soft:#17352E;
+    --ok:#6DD39A; --ok-bg:#16301F; --warn:#F2C26B; --warn-bg:#33270D; --crit:#F4A090; --crit-bg:#3A1A14;
+    --bubble:#1F4A38; --bubble-ink:#E6F7EE; --chat-bg:#1A2623; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1614; --surface:#15221F; --surface2:#1D2E2A; --ink:#E6F0ED; --muted:#9BB0AA; --line:#2A3C37;
+  --accent:#4FC3A8; --accent-ink:#06211A; --accent-soft:#17352E;
+  --ok:#6DD39A; --ok-bg:#16301F; --warn:#F2C26B; --warn-bg:#33270D; --crit:#F4A090; --crit-bg:#3A1A14;
+  --bubble:#1F4A38; --bubble-ink:#E6F7EE; --chat-bg:#1A2623; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 32px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.shell{max-width:1120px;margin-inline:auto}
+
+/* mockup banner */
+.mock-banner{margin-top:12px;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:10px 14px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
+.mock-banner b{font-weight:600}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn)}
+
+/* demo controls */
+.demo{margin-top:12px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.demo label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.demo select{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0;max-width:100%}
+.demo .hint{flex-basis:100%;font-size:13px;color:var(--muted)}
+
+/* frame */
+.frame{display:grid;grid-template-columns:230px minmax(0,1fr);gap:0;margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-height:560px}
+.side{background:var(--surface2);padding:18px 14px;display:flex;flex-direction:column;gap:18px;border-right:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;padding-inline:6px}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:17px}
+.brand b{display:block;font-family:var(--font-display);font-size:15px;line-height:1.1}
+.brand span{font-size:12px;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{background:none;border:0;text-align:left;padding:9px 10px;border-radius:8px;color:var(--muted);font-weight:500}
+.nav button:hover{background:var(--surface);color:var(--ink)}
+.nav button[aria-current="page"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.main{padding:24px 28px 32px;min-width:0}
+.topline{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.crumb{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0;display:inline-flex;gap:6px;align-items:center}
+.crumb:hover{text-decoration:underline}
+.who{font-size:13px;color:var(--muted)}
+.title{font-size:26px;line-height:1.15}
+.sub{color:var(--muted);margin-top:6px;max-width:62ch}
+
+/* buttons */
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:10px;font-weight:600}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.link{border:0;background:none;color:var(--accent);padding:6px 8px}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.btn.sm{padding:6px 12px;font-size:13.5px}
+.row-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.stat span{display:block;font-size:12px;color:var(--muted)}
+.stat b{font-family:var(--font-display);font-size:22px;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* progress */
+.progress{margin-top:22px}
+.progress .meta{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;margin-bottom:6px}
+.bar{height:8px;border-radius:999px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+
+/* hero card */
+.hero{margin-top:18px;border:1.5px solid var(--accent);border-radius:16px;padding:22px;background:linear-gradient(0deg,var(--accent-soft),var(--accent-soft)) ,var(--surface)}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.hero h2{font-size:22px;margin-top:6px;line-height:1.2}
+.because{margin-top:10px;font-weight:500}
+.because em{font-style:normal;color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+
+/* notices */
+.note{margin-top:14px;border-radius:10px;padding:10px 14px;font-size:14px;border:1px solid}
+.note.warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
+.note.crit{background:var(--crit-bg);color:var(--crit);border-color:var(--crit)}
+.note.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.note.info{background:var(--surface2);color:var(--ink);border-color:var(--line)}
+
+/* list */
+.list{margin-top:26px}
+.list h3{font-size:16px;margin-bottom:10px}
+.items{display:flex;flex-direction:column;gap:8px;padding:0;margin:0;list-style:none}
+.item{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.item .txt{min-width:0;flex:1 1 260px}
+.item b{font-weight:600;display:block}
+.item small{color:var(--muted);font-size:13px}
+.item .acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pill{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pill.ready{background:var(--accent-soft);color:var(--accent)}
+.pill.done{background:var(--ok-bg);color:var(--ok)}
+.pill.wait{background:var(--warn-bg);color:var(--warn)}
+.pill.lock{background:var(--crit-bg);color:var(--crit)}
+.pill.plan,.pill.snooze{background:var(--surface2);color:var(--muted)}
+.item.is-done b{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chiprow button{border:1px solid var(--line);background:var(--surface);padding:5px 12px;border-radius:999px;font-size:13px}
+.chiprow button:hover{background:var(--surface2)}
+
+/* screen 1 */
+.sent{max-width:560px;margin:28px auto 0;text-align:center}
+.tick{width:64px;height:64px;border-radius:50%;background:var(--ok-bg);color:var(--ok);display:grid;place-items:center;margin:0 auto 16px}
+.sent .summary{margin-top:20px;text-align:left;border:1px solid var(--line);border-radius:14px;padding:6px 16px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--muted)}
+.kv b{font-variant-numeric:tabular-nums;text-align:right}
+.teaser{margin-top:18px;text-align:left;background:var(--accent-soft);border-radius:12px;padding:14px 16px}
+
+/* detail + setup */
+.cols{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;margin-top:18px}
+.card{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:var(--surface);min-width:0}
+.card h3{font-size:15px;margin-bottom:6px}
+.card + .card{margin-top:12px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack .card + .card{margin-top:0}
+.chat{background:var(--chat-bg);border-radius:14px;padding:14px;min-height:150px}
+.bubble{background:var(--bubble);color:var(--bubble-ink);border-radius:12px 12px 12px 3px;padding:10px 12px;max-width:92%;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.chat small{display:block;margin-top:8px;color:var(--muted);font-size:12px}
+label.f{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+textarea,input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{min-height:130px;resize:vertical}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding:0;list-style:none}
+.steps li{font-size:13px;padding:4px 12px;border-radius:999px;background:var(--surface2);color:var(--muted);font-weight:500}
+.steps li.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.steps li.past{background:var(--ok-bg);color:var(--ok)}
+.cfg{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.cfg li{border-left:3px solid var(--accent);padding-left:12px}
+.quote{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);font-size:14px}
+.footer{margin-top:16px;font-size:12.5px;color:var(--muted);text-align:center}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px);z-index:5;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+
+/* responsive */
+@media (max-width:860px){
+  .frame{grid-template-columns:minmax(0,1fr)}
+  .side{border-right:0;border-bottom:1px solid var(--line);padding:12px 12px 8px;gap:10px}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+  .nav button{white-space:nowrap}
+  .nav button[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--accent)}
+  .main{padding:18px 16px 28px}
+  .cols{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:480px){
+  .title{font-size:22px}
+  .hero{padding:16px}
+  .row-actions .btn{flex:1 1 140px}
+}
+</style>
+<style>
+/* Page reset (standalone hosting) */
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="mock-banner" role="note">
+    <span class="tag">Mockup</span>
+    <span><b>Concept mockup for a product internship assignment.</b> It is not connected to Cheerio and does not turn on any feature. All names, numbers and messages are illustrative sample data.</span>
+  </div>
+
+  <div class="demo">
+    <label for="scenario">Demo scenario</label>
+    <select id="scenario">
+      <option value="normal">Normal flow</option>
+      <option value="permission">Missing account permission</option>
+      <option value="template">WhatsApp template awaiting approval</option>
+      <option value="plan">Feature not on current plan</option>
+      <option value="dismissed">Recommendation dismissed</option>
+      <option value="failure">Setup failure</option>
+    </select>
+    <button class="btn sm" id="restart" type="button">Restart demo</button>
+    <p class="hint" id="hint"></p>
+  </div>
+
+  <div class="frame">
+    <aside class="side">
+      <div class="brand"><div class="mark" aria-hidden="true">N</div><div><b>Next Best Step</b><span>Concept mockup</span></div></div>
+      <nav class="nav" aria-label="Main">
+        <button type="button" data-act="go-dash" id="nav-dash">Dashboard</button>
+        <button type="button" data-act="menu">Campaigns</button>
+        <button type="button" data-act="menu">Chatbots</button>
+        <button type="button" data-act="menu">Automations</button>
+        <button type="button" data-act="menu">Contacts (CRM)</button>
+        <button type="button" data-act="menu">Analytics</button>
+      </nav>
+    </aside>
+    <main class="main" id="app" aria-live="polite"></main>
+  </div>
+  <p class="footer">Illustrative sample data. Estimates such as setup times are assumptions, not Cheerio figures.</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+  var ITEMS = [
+    {id:'reply', title:'Set up automatic replies to customer questions',
+     because:'<em>38 customers replied</em> to your Diwali Glow Sale campaign.',
+     benefit:'Customers get an answer right away, even when you are busy. You spend less time typing the same replies by hand.',
+     time:'About 5 minutes', field:'Auto-reply message', done:'Automatic replies',
+     sample:'Hi! Thanks for messaging Glow Ritual. Delivery takes 3-5 working days. Reply 1 for order status, 2 for ingredients, 3 to talk to our team.'},
+    {id:'segments', title:'Organize contacts into customer segments',
+     because:'You sent to <em>1,200 contacts</em>, and they are all in one list.',
+     benefit:'Message first-time buyers and repeat buyers differently, without keeping a separate spreadsheet.',
+     time:'About 4 minutes', field:'Segment names (one per line)', done:'Customer segments',
+     sample:'Repeat buyers\nFirst-time buyers\nReplied to Diwali Glow Sale'},
+    {id:'analytics', title:'Review campaign analytics',
+     because:'Your campaign <em>went out today</em>. Results become useful in 24-48 hours.',
+     benefit:'See delivered, read and reply numbers in one place and learn which offer worked best.',
+     time:'About 2 minutes', field:'Numbers to show on my report', done:'Campaign report',
+     sample:'Delivered\nRead\nReplies\nLink clicks'},
+    {id:'followup', title:'Create a follow-up automation',
+     because:'Some customers <em>did not reply</em> to the first message.',
+     benefit:'Reach people who stayed quiet with one gentle reminder, without sending it by hand.',
+     time:'About 6 minutes', field:'Follow-up message (sent 2 days later)', done:'Follow-up automation',
+     sample:'Hi there! Still thinking about the Diwali Glow Sale? The offer ends Sunday. Reply YES and we will hold your set.'}
+  ];
+  var HINTS = {
+    normal:'Click through all five screens. Try "Not now" on the highlighted step to see a recommendation snooze.',
+    permission:'The first recommendation is locked because the account owner has not allowed this user to change it. Try "Notify admin".',
+    template:'The auto-reply needs a WhatsApp template that is still waiting for approval, so the next ready step is highlighted instead.',
+    plan:'The follow-up automation is shown as not included in the current plan. Look at the list under the highlighted step.',
+    dismissed:'The first recommendation was already snoozed. Try "Undo" or give a reason.',
+    failure:'Open a recommendation, start setup and press "Save and continue". The first save fails, then "Try again" works.'
+  };
+  var app = document.getElementById('app'), toastEl = document.getElementById('toast'), selEl = document.getElementById('scenario');
+  var S, toastTimer;
+
+  function fresh(sc, screen){
+    S = {screen:screen||'sent', scenario:sc||'normal', cur:null, done:{}, dismissed:{}, hidden:{}, edits:{},
+         failedOnce:false, failShown:false, support:false, notified:false, noticeId:null, planNote:false, reasonThanks:false};
+    if (sc === 'dismissed'){ S.dismissed.reply = true; S.noticeId = 'reply'; }
+  }
+  function esc(t){ return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function item(id){ return ITEMS.filter(function(i){return i.id===id;})[0]; }
+  function status(id){
+    if (S.hidden[id]) return 'hidden';
+    if (S.done[id]) return 'done';
+    if (S.dismissed[id]) return 'dismissed';
+    if (S.scenario==='template' && id==='reply') return 'template';
+    if (S.scenario==='permission' && id==='reply') return 'locked';
+    if (S.scenario==='plan' && id==='followup') return 'plan';
+    return 'ready';
+  }
+  function highlight(){
+    for (var i=0;i<ITEMS.length;i++){ var s=status(ITEMS[i].id); if (s==='ready'||s==='locked') return ITEMS[i]; }
+    return null;
+  }
+  function doneCount(){ return ITEMS.filter(function(i){return S.done[i.id];}).length; }
+  function toast(msg){
+    toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.hidden = true; }, 2800);
+  }
+  function pill(s){
+    var m = {ready:['ready','Ready'], done:['done','Done'], template:['wait','Waiting for approval'], locked:['lock','Needs admin'],
+             plan:['plan','Not in current plan'], dismissed:['snooze','Snoozed for 7 days']}[s];
+    return '<span class="pill '+m[0]+'">'+m[1]+'</span>';
+  }
+
+  /* ---------- screens ---------- */
+  function vSent(){
+    return '<div class="sent">'+
+      '<div class="tick" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>'+
+      '<h1 class="title" tabindex="-1" id="focus">Your campaign was sent</h1>'+
+      '<p class="sub" style="margin-inline:auto">Diwali Glow Sale went out to your customers on WhatsApp.</p>'+
+      '<div class="summary"><div class="kv"><span>Campaign</span><b>Diwali Glow Sale</b></div>'+
+      '<div class="kv"><span>Channel</span><b>WhatsApp</b></div>'+
+      '<div class="kv"><span>Sent to</span><b>1,200 contacts</b></div>'+
+      '<div class="kv"><span>Replies so far</span><b>38</b></div></div>'+
+      '<div class="teaser"><b>Your next best steps are ready.</b><br>We picked them based on what just happened with this campaign.</div>'+
+      '<div class="row-actions" style="justify-content:center"><button class="btn primary" type="button" data-act="go-dash">View my next steps</button></div>'+
+      '<p class="who" style="margin-top:12px">Sample data for illustration only.</p></div>';
+  }
+
+  function vDash(){
+    var h = highlight(), n = doneCount(), pct = Math.round(n/ITEMS.length*100);
+    var out = '<div class="topline"><div><h1 class="title" tabindex="-1" id="focus">Welcome back, Meera</h1>'+
+      '<p class="sub">Glow Ritual &middot; small skincare brand (sample account)</p></div></div>';
+    out += '<div class="stats"><div class="stat"><span>Last campaign</span><b>Diwali Glow Sale</b></div>'+
+      '<div class="stat"><span>Sent to</span><b>1,200</b></div><div class="stat"><span>Replies</span><b>38</b></div>'+
+      '<div class="stat"><span>Automations running</span><b>'+(S.done.reply||S.done.followup?'1+':'0')+'</b></div></div>';
+    out += '<div class="progress"><div class="meta"><span>Your next steps</span><span>'+n+' of '+ITEMS.length+' done</span></div>'+
+      '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+ITEMS.length+'" aria-valuenow="'+n+'" aria-label="Checklist progress"><i style="width:'+pct+'%"></i></div></div>';
+
+    if (S.noticeId){
+      var ni = item(S.noticeId);
+      out += '<div class="note info"><b>Snoozed: '+esc(ni.title)+'.</b> We will show it again in 7 days.'+
+        (S.reasonThanks ? ' Thanks, noted.' : '<div class="chiprow" aria-label="Why not now?"><button type="button" data-act="reason">Not relevant</button><button type="button" data-act="reason">Later</button><button type="button" data-act="reason">Already doing this</button></div>')+'</div>';
+    }
+
+    if (h){
+      var locked = status(h.id)==='locked';
+      out += '<section class="hero" aria-labelledby="hero-t"><div class="eyebrow">Your next best step</div>'+
+        '<h2 id="hero-t">'+esc(h.title)+'</h2><p class="because">Because '+h.because+'</p>'+
+        '<div class="chips"><span class="chip">'+esc(h.time)+'</span><span class="chip">Estimate (assumption)</span></div>';
+      if (locked){
+        out += '<div class="note crit">You do not have permission to change this setting. Ask your account admin to turn it on.</div>';
+      }
+      out += '<div class="row-actions">';
+      if (locked){
+        out += '<button class="btn primary" type="button" data-act="notify"'+(S.notified?' disabled':'')+'>'+(S.notified?'Admin notified (demo)':'Notify admin')+'</button>'+
+               '<button class="btn" type="button" data-act="open" data-id="'+h.id+'">See details</button>';
+      } else {
+        out += '<button class="btn primary" type="button" data-act="open" data-id="'+h.id+'">See why and start</button>';
+      }
+      out += '<button class="btn link" type="button" data-act="dismiss" data-id="'+h.id+'">Not now</button></div></section>';
+    } else {
+      out += '<section class="hero"><div class="eyebrow">Your next best step</div><h2>Nothing more to do right now</h2>'+
+        '<p class="because">You have finished every step that is available. New ones appear after your next campaign.</p></section>';
+    }
+
+    var others = ITEMS.filter(function(i){ return (!h || i.id!==h.id) && status(i.id)!=='hidden'; });
+    out += '<section class="list"><h3>More steps for you</h3><ul class="items">';
+    others.forEach(function(i){
+      var s = status(i.id), acts = '';
+      if (s==='ready'||s==='template'||s==='locked') acts = '<button class="btn sm" type="button" data-act="open" data-id="'+i.id+'">View</button>';
+      if (s==='plan') acts = '<button class="btn sm" type="button" data-act="learn" data-id="'+i.id+'">Learn more</button>';
+      if (s==='dismissed') acts = '<button class="btn sm" type="button" data-act="undo" data-id="'+i.id+'">Undo</button><button class="btn link sm" type="button" data-act="hide" data-id="'+i.id+'">Don\'t show again</button>';
+      var sub = s==='plan' ? (S.planNote ? 'This step is not included in the current plan (illustrative). In a real product, plan details would be confirmed here.' : 'Not included in the current plan.')
+              : s==='template' ? 'Waiting for WhatsApp approval. We will tell you when it is ready.'
+              : s==='locked' ? 'Ask your account admin to enable this.' : i.benefit;
+      out += '<li class="item'+(s==='done'?' is-done':'')+'"><div class="txt"><b>'+esc(i.title)+'</b><small>'+esc(sub)+'</small></div>'+
+        '<div class="acts">'+pill(s)+acts+'</div></li>';
+    });
+    out += '</ul></section>';
+    return out;
+  }
+
+  function bubble(text){ return '<div class="chat"><div class="bubble" id="bub">'+esc(text)+'</div><small>Preview, illustrative only</small></div>'; }
+
+  function vDetail(){
+    var i = item(S.cur), s = status(i.id), blocked = (s==='locked'||s==='template');
+    var txt = S.edits[i.id] || i.sample;
+    var out = '<div class="topline"><button class="crumb" type="button" data-act="go-dash">&larr; Back to dashboard</button><span class="who">Recommendation details</span></div>'+
+      '<div class="eyebrow">Your next best step</div><h1 class="title" tabindex="-1" id="focus" style="margin-top:6px">'+esc(i.title)+'</h1>';
+    if (s==='locked') out += '<div class="note crit">You do not have permission to change this setting. Ask your account admin to turn it on.</div>';
+    if (s==='template') out += '<div class="note warn">Your WhatsApp template is waiting for approval. You can start setup once it is approved. We will tell you when it is ready.</div>';
+    out += '<div class="cols"><div class="stack">'+
+      '<div class="card"><h3>Why this is relevant to you</h3><p>Because '+i.because+'</p><p class="who" style="margin-top:6px">Sample numbers for illustration.</p></div>'+
+      '<div class="card"><h3>Expected benefit</h3><p>'+esc(i.benefit)+'</p></div>'+
+      '<div class="card"><h3>Estimated setup time</h3><p><b>'+esc(i.time)+'</b> <span class="who">(assumption, not a Cheerio figure)</span></p></div>'+
+      '</div><div class="card"><h3>What you will set up</h3><p class="who" style="margin-bottom:10px">'+esc(i.field)+'</p>'+bubble(txt)+'</div></div>';
+    out += '<div class="row-actions"><button class="btn primary" type="button" data-act="start"'+(blocked?' disabled':'')+'>Start setup</button>'+
+      '<button class="btn" type="button" data-act="go-dash">Back</button>'+
+      (s==='locked' ? '<button class="btn" type="button" data-act="notify"'+(S.notified?' disabled':'')+'>'+(S.notified?'Admin notified (demo)':'Notify admin')+'</button>' : '')+'</div>';
+    return out;
+  }
+
+  function stepper(active){
+    var labels = ['Review','Edit and save','Done'];
+    return '<ol class="steps" aria-label="Setup progress">'+labels.map(function(l,k){
+      return '<li class="'+(k<active?'past':k===active?'on':'')+'"'+(k===active?' aria-current="step"':'')+'>'+(k+1)+'. '+l+'</li>'; }).join('')+'</ol>';
+  }
+
+  function vSetup(){
+    var i = item(S.cur), txt = S.edits[i.id] != null ? S.edits[i.id] : i.sample;
+    var out = '<div class="topline"><button class="crumb" type="button" data-act="go-dash">&larr; Back to dashboard</button><span class="who">Guided setup</span></div>'+
+      '<h1 class="title" tabindex="-1" id="focus">'+esc(i.title)+'</h1>'+stepper(1);
+    if (S.failShown){
+      out += '<div class="note crit" role="alert"><b>We could not save your changes.</b> Your text is saved as a draft, so you will not lose it.'+
+        '<div class="row-actions" style="margin-top:10px"><button class="btn primary sm" type="button" data-act="retry">Try again</button>'+
+        '<button class="btn sm" type="button" data-act="support">Contact support</button></div>'+
+        (S.support ? '<p style="margin-top:10px">In a real product this would open a support chat or form. Nothing is sent from this mockup.</p>' : '')+'</div>';
+    }
+    out += '<div class="cols"><div class="card"><label class="f" for="edit">'+esc(i.field)+'</label>'+
+      '<textarea id="edit" aria-describedby="edit-help">'+esc(txt)+'</textarea>'+
+      '<p class="who" id="edit-help" style="margin-top:6px">This is sample text. Edit it as you like.</p></div>'+
+      '<div class="card"><h3>Preview</h3>'+bubble(txt)+'</div></div>'+
+      '<p class="who" style="margin-top:12px">Mockup: saving does not change any real account.</p>'+
+      '<div class="row-actions"><button class="btn" type="button" data-act="back-detail">Back</button>'+
+      '<button class="btn primary" type="button" data-act="save">Save and continue</button></div>';
+    return out;
+  }
+
+  function vSuccess(){
+    var i = item(S.cur), txt = S.edits[i.id] != null ? S.edits[i.id] : i.sample, nx = highlight();
+    return '<div class="topline"><button class="crumb" type="button" data-act="go-dash">&larr; Back to dashboard</button><span class="who">Done</span></div>'+
+      '<div class="tick" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>'+
+      '<h1 class="title" tabindex="-1" id="focus">'+esc(i.done)+' saved in this mockup</h1>'+stepper(3)+
+      '<div class="note info"><b>This is a mockup.</b> Nothing was turned on in Cheerio. In a real product, this is where the setup would take effect.</div>'+
+      '<div class="card" style="margin-top:14px"><h3>What was configured in the mockup</h3><ul class="cfg"><li><b>'+esc(i.title)+'</b>'+
+      '<div class="quote">'+esc(i.field)+':\n'+esc(txt)+'</div></li></ul></div>'+
+      '<p class="who" style="margin-top:12px">Progress: '+doneCount()+' of '+ITEMS.length+' steps done.</p>'+
+      '<div class="row-actions"><button class="btn primary" type="button" data-act="go-dash">'+(nx?'See next step':'Back to dashboard')+'</button>'+
+      (nx?'<button class="btn" type="button" data-act="go-dash">Back to dashboard</button>':'')+'</div>';
+  }
+
+  /* ---------- render and events ---------- */
+  function render(focus){
+    var views = {sent:vSent, dash:vDash, detail:vDetail, setup:vSetup, success:vSuccess};
+    app.innerHTML = views[S.screen]();
+    document.getElementById('nav-dash').setAttribute('aria-current', S.screen==='sent' ? 'false' : 'page');
+    document.getElementById('hint').textContent = HINTS[S.scenario];
+    var ed = document.getElementById('edit');
+    if (ed) ed.addEventListener('input', function(){
+      S.edits[S.cur] = ed.value; var b = document.getElementById('bub'); if (b) b.textContent = ed.value;
+    });
+    if (focus !== false){ var f = document.getElementById('focus'); if (f) f.focus({preventScroll:true}); }
+  }
+
+  app.addEventListener('click', function(e){ var t = e.target.closest('[data-act]'); if (t) act(t.getAttribute('data-act'), t.getAttribute('data-id')); });
+  document.querySelector('.side').addEventListener('click', function(e){ var t = e.target.closest('[data-act]'); if (t) act(t.getAttribute('data-act'), null); });
+
+  function act(a, id){
+    switch(a){
+      case 'go-dash': S.screen='dash'; S.support=false; render(); break;
+      case 'menu': toast('This menu item is not part of the mockup. Use Dashboard.'); break;
+      case 'open': S.cur=id; S.screen='detail'; render(); break;
+      case 'start': S.screen='setup'; S.failShown=false; S.support=false; render(); break;
+      case 'back-detail': S.screen='detail'; render(); break;
+      case 'save':
+        if (S.scenario==='failure' && !S.failedOnce){ S.failedOnce=true; S.failShown=true; render(false); var al=app.querySelector('[role=alert]'); if (al) al.scrollIntoView({block:'nearest'}); }
+        else { S.done[S.cur]=true; S.failShown=false; S.screen='success'; render(); }
+        break;
+      case 'retry': S.done[S.cur]=true; S.failShown=false; S.support=false; S.screen='success'; render(); break;
+      case 'support': S.support=!S.support; render(false); break;
+      case 'notify': S.notified=true; render(false); toast('Admin notified (demo only, nothing was sent).'); break;
+      case 'dismiss': S.dismissed[id]=true; S.noticeId=id; S.reasonThanks=false; render(false); break;
+      case 'undo': delete S.dismissed[id]; if (S.noticeId===id) S.noticeId=null; render(false); break;
+      case 'hide': S.hidden[id]=true; if (S.noticeId===id) S.noticeId=null; render(false); toast('Hidden. It will not appear again (demo).'); break;
+      case 'reason': S.reasonThanks=true; render(false); break;
+      case 'learn': S.planNote=!S.planNote; render(false); break;
+    }
+  }
+
+  selEl.addEventListener('change', function(){ fresh(selEl.value, 'dash'); render(); });
+  document.getElementById('restart').addEventListener('click', function(){ selEl.value='normal'; fresh('normal','sent'); render(); });
+
+  fresh('normal','sent'); render(false);
+})();
+</script>
+</body>
+</html>
