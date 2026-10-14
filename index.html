@@ -160,6 +160,21 @@ textarea{min-height:130px;resize:vertical}
 .quote{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);font-size:14px}
 .footer{margin-top:16px;font-size:12.5px;color:var(--muted);text-align:center}
 
+/* section screens */
+.sechead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px}
+.chiprow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px}
+.grid2 .card + .card{margin-top:0}
+.nudge{margin-top:16px;border:1.5px solid var(--accent);border-radius:12px;padding:12px 14px;background:var(--accent-soft);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.nudge .txt{flex:1 1 240px;min-width:0}
+.pill.live{background:var(--ok-bg);color:var(--ok)}
+.bars{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.barrow{display:grid;grid-template-columns:90px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:13.5px}
+.barrow b{text-align:right;font-variant-numeric:tabular-nums}
+.search{margin-top:14px}
+.convo{display:flex;flex-direction:column;gap:8px}
+.bubble.me{align-self:flex-end;background:var(--surface);color:var(--ink);border-radius:12px 12px 3px 12px}
+
 /* toast */
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px);z-index:5;box-shadow:0 6px 24px rgba(0,0,0,.25)}
 
@@ -211,12 +226,12 @@ body{margin:0}
     <aside class="side">
       <div class="brand"><div class="mark" aria-hidden="true">N</div><div><b>Next Best Step</b><span>Concept mockup</span></div></div>
       <nav class="nav" aria-label="Main">
-        <button type="button" data-act="go-dash" id="nav-dash">Dashboard</button>
-        <button type="button" data-act="menu">Campaigns</button>
-        <button type="button" data-act="menu">Chatbots</button>
-        <button type="button" data-act="menu">Automations</button>
-        <button type="button" data-act="menu">Contacts (CRM)</button>
-        <button type="button" data-act="menu">Analytics</button>
+        <button type="button" data-act="nav" data-id="dash" id="nav-dash">Dashboard</button>
+        <button type="button" data-act="nav" data-id="campaigns" id="nav-campaigns">Campaigns</button>
+        <button type="button" data-act="nav" data-id="chatbots" id="nav-chatbots">Chatbots</button>
+        <button type="button" data-act="nav" data-id="automations" id="nav-automations">Automations</button>
+        <button type="button" data-act="nav" data-id="contacts" id="nav-contacts">Contacts (CRM)</button>
+        <button type="button" data-act="nav" data-id="analytics" id="nav-analytics">Analytics</button>
       </nav>
     </aside>
     <main class="main" id="app" aria-live="polite"></main>
@@ -262,7 +277,9 @@ body{margin:0}
 
   function fresh(sc, screen){
     S = {screen:screen||'sent', scenario:sc||'normal', cur:null, done:{}, dismissed:{}, hidden:{}, edits:{},
-         failedOnce:false, failShown:false, support:false, notified:false, noticeId:null, planNote:false, reasonThanks:false};
+         failedOnce:false, failShown:false, support:false, notified:false, noticeId:null, planNote:false, reasonThanks:false,
+         from:'dash', camp:'All', newCamp:false, bots:{order:true,faq:false}, autos:{welcome:true,cart:false},
+         tag:'All', q:'', acamp:'diwali', reportSaved:false};
     if (sc === 'dismissed'){ S.dismissed.reply = true; S.noticeId = 'reply'; }
   }
   function esc(t){ return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -365,7 +382,7 @@ body{margin:0}
   function vDetail(){
     var i = item(S.cur), s = status(i.id), blocked = (s==='locked'||s==='template');
     var txt = S.edits[i.id] || i.sample;
-    var out = '<div class="topline"><button class="crumb" type="button" data-act="go-dash">&larr; Back to dashboard</button><span class="who">Recommendation details</span></div>'+
+    var out = '<div class="topline"><button class="crumb" type="button" data-act="back">&larr; Back to '+NAMES[S.from||'dash']+'</button><span class="who">Recommendation details</span></div>'+
       '<div class="eyebrow">Your next best step</div><h1 class="title" tabindex="-1" id="focus" style="margin-top:6px">'+esc(i.title)+'</h1>';
     if (s==='locked') out += '<div class="note crit">You do not have permission to change this setting. Ask your account admin to turn it on.</div>';
     if (s==='template') out += '<div class="note warn">Your WhatsApp template is waiting for approval. You can start setup once it is approved. We will tell you when it is ready.</div>';
@@ -375,7 +392,7 @@ body{margin:0}
       '<div class="card"><h3>Estimated setup time</h3><p><b>'+esc(i.time)+'</b> <span class="who">(assumption, not a Cheerio figure)</span></p></div>'+
       '</div><div class="card"><h3>What you will set up</h3><p class="who" style="margin-bottom:10px">'+esc(i.field)+'</p>'+bubble(txt)+'</div></div>';
     out += '<div class="row-actions"><button class="btn primary" type="button" data-act="start"'+(blocked?' disabled':'')+'>Start setup</button>'+
-      '<button class="btn" type="button" data-act="go-dash">Back</button>'+
+      '<button class="btn" type="button" data-act="back">Back</button>'+
       (s==='locked' ? '<button class="btn" type="button" data-act="notify"'+(S.notified?' disabled':'')+'>'+(S.notified?'Admin notified (demo)':'Notify admin')+'</button>' : '')+'</div>';
     return out;
   }
@@ -388,7 +405,7 @@ body{margin:0}
 
   function vSetup(){
     var i = item(S.cur), txt = S.edits[i.id] != null ? S.edits[i.id] : i.sample;
-    var out = '<div class="topline"><button class="crumb" type="button" data-act="go-dash">&larr; Back to dashboard</button><span class="who">Guided setup</span></div>'+
+    var out = '<div class="topline"><button class="crumb" type="button" data-act="back">&larr; Back to '+NAMES[S.from||'dash']+'</button><span class="who">Guided setup</span></div>'+
       '<h1 class="title" tabindex="-1" id="focus">'+esc(i.title)+'</h1>'+stepper(1);
     if (S.failShown){
       out += '<div class="note crit" role="alert"><b>We could not save your changes.</b> Your text is saved as a draft, so you will not lose it.'+
@@ -408,7 +425,7 @@ body{margin:0}
 
   function vSuccess(){
     var i = item(S.cur), txt = S.edits[i.id] != null ? S.edits[i.id] : i.sample, nx = highlight();
-    return '<div class="topline"><button class="crumb" type="button" data-act="go-dash">&larr; Back to dashboard</button><span class="who">Done</span></div>'+
+    return '<div class="topline"><button class="crumb" type="button" data-act="back">&larr; Back to '+NAMES[S.from||'dash']+'</button><span class="who">Done</span></div>'+
       '<div class="tick" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>'+
       '<h1 class="title" tabindex="-1" id="focus">'+esc(i.done)+' saved in this mockup</h1>'+stepper(3)+
       '<div class="note info"><b>This is a mockup.</b> Nothing was turned on in Cheerio. In a real product, this is where the setup would take effect.</div>'+
@@ -416,14 +433,146 @@ body{margin:0}
       '<div class="quote">'+esc(i.field)+':\n'+esc(txt)+'</div></li></ul></div>'+
       '<p class="who" style="margin-top:12px">Progress: '+doneCount()+' of '+ITEMS.length+' steps done.</p>'+
       '<div class="row-actions"><button class="btn primary" type="button" data-act="go-dash">'+(nx?'See next step':'Back to dashboard')+'</button>'+
-      (nx?'<button class="btn" type="button" data-act="go-dash">Back to dashboard</button>':'')+'</div>';
+      (nx||S.from!=='dash'?'<button class="btn" type="button" data-act="back">Back to '+NAMES[S.from||'dash']+'</button>':'')+'</div>';
+  }
+
+  /* ---------- section screens (illustrative sample data only) ---------- */
+  var NAMES = {dash:'dashboard', campaigns:'Campaigns', chatbots:'Chatbots', automations:'Automations', contacts:'Contacts', analytics:'Analytics'};
+  var SECTIONS = ['dash','campaigns','chatbots','automations','contacts','analytics'];
+  function head(title, sub, actions){
+    return '<div class="sechead"><div><h1 class="title" tabindex="-1" id="focus">'+title+'</h1><p class="sub">'+sub+'</p></div>'+
+      '<div class="row-actions" style="margin-top:0">'+(actions||'')+'</div></div>';
+  }
+  function nudge(id, text){
+    var s = status(id);
+    if (S.done[id] || s==='hidden') return '';
+    var btn = s==='plan' ? '<button class="btn sm" type="button" data-act="learn-nav" data-id="'+id+'">Learn more</button>'
+            : s==='dismissed' ? '<button class="btn sm" type="button" data-act="undo-nav" data-id="'+id+'">Undo snooze</button>'
+            : '<button class="btn primary sm" type="button" data-act="open" data-id="'+id+'">'+(s==='locked'?'See details':s==='template'?'See details':'See why and start')+'</button>';
+    var extra = s==='locked' ? ' (needs your account admin)' : s==='template' ? ' (waiting for WhatsApp template approval)' : s==='plan' ? ' (not in the current plan)' : s==='dismissed' ? ' (snoozed for 7 days)' : '';
+    return '<div class="nudge"><div class="txt"><div class="eyebrow">Next best step</div><b>'+esc(item(id).title)+'</b><div class="who">'+esc(text+extra)+'</div></div>'+btn+'</div>';
+  }
+  function foot(){ return '<p class="who" style="margin-top:16px">Mockup screen with illustrative sample data. Nothing here is connected to Cheerio.</p>'; }
+
+  function vCampaigns(){
+    var rows = [
+      {n:'Diwali Glow Sale', st:'Sent', ch:'WhatsApp', a:'1,200 contacts', b:'38 replies', rep:true},
+      {n:'Monsoon Skin Reset', st:'Sent', ch:'WhatsApp', a:'860 contacts', b:'21 replies', rep:true},
+      {n:'Weekend Restock Alert', st:'Scheduled', ch:'WhatsApp', a:'Sends Sat 10:00', b:'950 contacts'},
+      {n:'New Customer Welcome Offer', st:'Draft', ch:'WhatsApp', a:'Not scheduled', b:'Audience not chosen'}
+    ];
+    if (S.newCamp) rows.unshift({n:'Untitled campaign', st:'Draft', ch:'WhatsApp', a:'Just created (demo)', b:'Audience not chosen'});
+    var tags = ['All','Sent','Scheduled','Draft'];
+    var out = head('Campaigns','Create, schedule and review WhatsApp campaigns (sample data).','<button class="btn primary" type="button" data-act="new-campaign"'+(S.newCamp?' disabled':'')+'>'+(S.newCamp?'Draft added (demo)':'New campaign')+'</button>');
+    out += '<div class="stats"><div class="stat"><span>Sent this month</span><b>2</b></div><div class="stat"><span>Scheduled</span><b>1</b></div><div class="stat"><span>Drafts</span><b>'+(S.newCamp?2:1)+'</b></div><div class="stat"><span>Total replies</span><b>59</b></div></div>';
+    out += nudge('reply','Your last campaign got replies that nobody has answered automatically.');
+    out += '<div class="chiprow" role="group" aria-label="Filter campaigns">'+tags.map(function(t){return '<button type="button" data-act="camp-filter" data-id="'+t+'" aria-pressed="'+(S.camp===t)+'">'+t+'</button>';}).join('')+'</div>';
+    out += '<ul class="items" style="margin-top:12px">';
+    var shown = rows.filter(function(r){ return S.camp==='All' || r.st===S.camp; });
+    shown.forEach(function(r){
+      var cls = r.st==='Sent'?'done':r.st==='Scheduled'?'ready':'plan';
+      out += '<li class="item"><div class="txt"><b>'+esc(r.n)+'</b><small>'+esc(r.ch+' · '+r.a+' · '+r.b)+'</small></div><div class="acts"><span class="pill '+cls+'">'+r.st+'</span>'+
+        (r.rep ? '<button class="btn sm" type="button" data-act="nav" data-id="analytics">View results</button>' : '')+
+        (r.st==='Scheduled' ? '<button class="btn sm" type="button" data-act="toast" data-id="Edit schedule (demo only, nothing changes).">Edit schedule</button>' : '')+
+        (r.st==='Draft' ? '<button class="btn sm" type="button" data-act="toast" data-id="Continue editing (demo only, nothing changes).">Continue</button>' : '')+
+        '<button class="btn link sm" type="button" data-act="toast" data-id="Duplicate (demo only, nothing was created).">Duplicate</button></div></li>';
+    });
+    if (!shown.length) out += '<li class="item"><div class="txt"><small>No campaigns with this status.</small></div><button class="btn sm" type="button" data-act="camp-filter" data-id="All">Show all</button></li>';
+    out += '</ul>' + foot();
+    return out;
+  }
+
+  function botState(id){ return S.bots[id] ? 'live' : 'plan'; }
+  function vChatbots(){
+    var rs = status('reply');
+    var replyPill = S.done.reply ? '<span class="pill live">Live (demo)</span>' : pill(rs==='ready'?'ready':rs);
+    var out = head('Chatbots','Bots that answer common customer questions on WhatsApp (sample data).','<button class="btn primary" type="button" data-act="toast" data-id="New chatbot (demo only, nothing was created).">New chatbot</button>');
+    out += nudge('reply','38 customers replied to your Diwali Glow Sale campaign.');
+    out += '<ul class="items" style="margin-top:16px">';
+    out += '<li class="item"><div class="txt"><b>Order status bot</b><small>Answers "Where is my order?" · 112 chats handled (sample)</small></div><div class="acts"><span class="pill '+(S.bots.order?'live':'plan')+'">'+(S.bots.order?'Live (demo)':'Paused')+'</span><button class="btn sm" type="button" data-act="bot-toggle" data-id="order">'+(S.bots.order?'Pause':'Resume')+'</button></div></li>';
+    out += '<li class="item"><div class="txt"><b>Product FAQ bot</b><small>Ingredients, skin type and delivery questions · Draft</small></div><div class="acts"><span class="pill '+(S.bots.faq?'live':'plan')+'">'+(S.bots.faq?'Live (demo)':'Draft')+'</span><button class="btn sm" type="button" data-act="bot-toggle" data-id="faq">'+(S.bots.faq?'Pause':'Publish')+'</button></div></li>';
+    out += '<li class="item"><div class="txt"><b>Automatic replies to campaign responses</b><small>'+(S.done.reply?'Set up in the checklist (mockup).':rs==='template'?'Waiting for WhatsApp template approval.':rs==='locked'?'Ask your account admin to enable this.':'Not set up yet. This is your recommended step.')+'</small></div><div class="acts">'+replyPill+
+      (S.done.reply ? '' : '<button class="btn sm" type="button" data-act="open" data-id="reply"'+(rs==='dismissed'?' disabled':'')+'>Set up</button>')+'</div></li>';
+    out += '</ul>';
+    out += '<div class="grid2"><div class="card"><h3>Sample conversation</h3><div class="chat"><div class="convo"><div class="bubble me">Where is my order?</div><div class="bubble">Hi there! Your order is on its way. Reply 1 for tracking or 2 to talk to our team.</div></div><small>Preview, illustrative only</small></div></div>'+
+      '<div class="card"><h3>Handled by bots (sample)</h3><div class="stats" style="margin-top:8px"><div class="stat"><span>Chats this week</span><b>'+(112+(S.bots.faq?24:0))+'</b></div><div class="stat"><span>Handed to a person</span><b>9</b></div></div></div></div>';
+    return out + foot();
+  }
+
+  function vAutomations(){
+    var fs = status('followup'), plan = fs==='plan';
+    var out = head('Automations','Messages that send themselves when something happens (sample data).','<button class="btn primary" type="button" data-act="toast" data-id="New automation (demo only, nothing was created).">New automation</button>');
+    out += nudge('followup','Some customers did not reply to the first message.');
+    out += '<ul class="items" style="margin-top:16px">';
+    out += '<li class="item"><div class="txt"><b>Welcome message</b><small>Sends when a new contact joins · 214 sent (sample)</small></div><div class="acts"><span class="pill '+(S.autos.welcome?'live':'plan')+'">'+(S.autos.welcome?'Running (demo)':'Paused')+'</span><button class="btn sm" type="button" data-act="auto-toggle" data-id="welcome">'+(S.autos.welcome?'Pause':'Resume')+'</button></div></li>';
+    out += '<li class="item"><div class="txt"><b>Abandoned cart reminder</b><small>Sends 1 hour after a cart is left · Paused</small></div><div class="acts"><span class="pill '+(S.autos.cart?'live':'plan')+'">'+(S.autos.cart?'Running (demo)':'Paused')+'</span><button class="btn sm" type="button" data-act="auto-toggle" data-id="cart">'+(S.autos.cart?'Pause':'Resume')+'</button></div></li>';
+    out += '<li class="item'+(S.done.followup?'':'')+'"><div class="txt"><b>Follow-up after no reply</b><small>'+(S.done.followup?'Set up in the checklist (mockup). Sends 2 days later.':plan?'Not included in the current plan.':fs==='dismissed'?'Snoozed for 7 days.':'Not set up yet. Reaches people who stayed quiet.')+'</small></div><div class="acts">'+
+      (S.done.followup ? '<span class="pill live">Running (demo)</span>' : plan ? '<span class="pill plan">Not in current plan</span><button class="btn sm" type="button" data-act="learn-nav" data-id="followup">Learn more</button>' : fs==='dismissed' ? '<span class="pill snooze">Snoozed</span><button class="btn sm" type="button" data-act="undo-nav" data-id="followup">Undo</button>' : '<span class="pill ready">Ready</span><button class="btn sm" type="button" data-act="open" data-id="followup">Set up</button>')+'</div></li>';
+    out += '</ul>';
+    if (plan && S.planNote) out += '<div class="note info">This step is not included in the current plan (illustrative). In a real product, plan details would be confirmed here.</div>';
+    return out + foot();
+  }
+
+  var CONTACTS = [
+    {n:'Aarav S.', p:'+91 •••••• 214', t:['Repeat buyer','Replied']},
+    {n:'Divya R.', p:'+91 •••••• 087', t:['First-time buyer']},
+    {n:'Kavya M.', p:'+91 •••••• 530', t:['Repeat buyer']},
+    {n:'Rohan P.', p:'+91 •••••• 902', t:['First-time buyer','Replied']},
+    {n:'Sneha T.', p:'+91 •••••• 366', t:['Repeat buyer','Replied']},
+    {n:'Imran K.', p:'+91 •••••• 741', t:['First-time buyer']}
+  ];
+  function contactRows(){
+    var q = S.q.trim().toLowerCase();
+    var list = CONTACTS.filter(function(c){ return (S.tag==='All' || c.t.indexOf(S.tag)>-1) && (!q || c.n.toLowerCase().indexOf(q)>-1); });
+    if (!list.length) return '<li class="item"><div class="txt"><small>No contacts match. Clear the search or choose "All".</small></div><button class="btn sm" type="button" data-act="contact-reset">Clear filters</button></li>';
+    return list.map(function(c){
+      return '<li class="item"><div class="txt"><b>'+esc(c.n)+'</b><small>'+esc(c.p)+' · '+esc(c.t.join(', '))+'</small></div><div class="acts"><button class="btn sm" type="button" data-act="toast" data-id="Message '+esc(c.n)+' (demo only, nothing was sent).">Message</button></div></li>';
+    }).join('');
+  }
+  function vContacts(){
+    var ss = status('segments');
+    var segNames = (S.edits.segments != null ? S.edits.segments : item('segments').sample).split('\n').filter(function(x){return x.trim();});
+    var out = head('Contacts (CRM)','Your customers in one place (sample data, names invented).','<button class="btn primary" type="button" data-act="toast" data-id="Import contacts (demo only, nothing was imported).">Import contacts</button>');
+    out += '<div class="stats"><div class="stat"><span>Contacts</span><b>1,200</b></div><div class="stat"><span>Replied to last campaign</span><b>38</b></div><div class="stat"><span>Segments</span><b>'+(S.done.segments?segNames.length:0)+'</b></div></div>';
+    out += nudge('segments','You sent to 1,200 contacts, and they are all in one list.');
+    out += '<div class="card" style="margin-top:14px"><h3>Segments</h3>';
+    if (S.done.segments) out += '<div class="chips">'+segNames.map(function(s){return '<span class="chip">'+esc(s)+'</span>';}).join('')+'</div><p class="who" style="margin-top:8px">Saved in the checklist (mockup). Not applied to real contacts.</p>';
+    else out += '<p class="who">No segments yet. All 1,200 contacts are in one list.</p>';
+    out += '</div>';
+    out += '<div class="chiprow" role="group" aria-label="Filter by tag">'+['All','Repeat buyer','First-time buyer','Replied'].map(function(t){return '<button type="button" data-act="tag" data-id="'+t+'" aria-pressed="'+(S.tag===t)+'">'+t+'</button>';}).join('')+'</div>';
+    out += '<div class="search"><label class="f" for="csearch">Search contacts</label><input type="text" id="csearch" placeholder="Type a name, e.g. Divya" value="'+esc(S.q)+'"></div>';
+    out += '<ul class="items" id="clist" style="margin-top:12px">'+contactRows()+'</ul>';
+    return out + foot();
+  }
+
+  var CAMPS = {
+    diwali:{n:'Diwali Glow Sale', d:1164, r:842, rep:38, c:96, sub:'Sent today'},
+    monsoon:{n:'Monsoon Skin Reset', d:842, r:611, rep:21, c:57, sub:'Sent 3 weeks ago'}
+  };
+  function vAnalytics(){
+    var c = CAMPS[S.acamp], as = status('analytics');
+    var out = head('Analytics','See how your campaigns performed (sample data).','<button class="btn" type="button" data-act="toast" data-id="Export (demo only, no file was created).">Export</button>');
+    out += nudge('analytics','Your campaign went out today. Results become useful in 24-48 hours.');
+    if (S.done.analytics) out += '<div class="note ok">Campaign report saved in the checklist (mockup). Showing: '+esc((S.edits.analytics != null ? S.edits.analytics : item('analytics').sample).split('\n').filter(function(x){return x.trim();}).join(', '))+'.</div>';
+    out += '<div class="chiprow" role="group" aria-label="Choose campaign">'+Object.keys(CAMPS).map(function(k){return '<button type="button" data-act="acamp" data-id="'+k+'" aria-pressed="'+(S.acamp===k)+'">'+esc(CAMPS[k].n)+'</button>';}).join('')+'</div>';
+    out += '<p class="who" style="margin-top:8px">'+esc(c.n)+' · '+esc(c.sub)+'</p>';
+    out += '<div class="stats"><div class="stat"><span>Delivered</span><b>'+c.d.toLocaleString('en-US')+'</b></div><div class="stat"><span>Read</span><b>'+c.r.toLocaleString('en-US')+'</b></div><div class="stat"><span>Replies</span><b>'+c.rep+'</b></div><div class="stat"><span>Link clicks</span><b>'+c.c+'</b></div></div>';
+    function row(l,v){ return '<div class="barrow"><span>'+l+'</span><div class="bar" aria-hidden="true"><i style="width:'+Math.round(v/c.d*100)+'%"></i></div><b>'+v.toLocaleString('en-US')+'</b></div>'; }
+    out += '<div class="card" style="margin-top:14px"><h3>Funnel (share of delivered)</h3><div class="bars">'+row('Delivered',c.d)+row('Read',c.r)+row('Clicked',c.c)+row('Replied',c.rep)+'</div></div>';
+    out += '<div class="row-actions"><button class="btn" type="button" data-act="nav" data-id="campaigns">Back to Campaigns</button></div>';
+    return out + foot();
   }
 
   /* ---------- render and events ---------- */
   function render(focus){
-    var views = {sent:vSent, dash:vDash, detail:vDetail, setup:vSetup, success:vSuccess};
+    var views = {sent:vSent, dash:vDash, detail:vDetail, setup:vSetup, success:vSuccess, campaigns:vCampaigns, chatbots:vChatbots, automations:vAutomations, contacts:vContacts, analytics:vAnalytics};
     app.innerHTML = views[S.screen]();
-    document.getElementById('nav-dash').setAttribute('aria-current', S.screen==='sent' ? 'false' : 'page');
+    SECTIONS.forEach(function(k){
+      var cur = (S.screen===k) || (S.screen==='detail'||S.screen==='setup'||S.screen==='success') && S.from===k;
+      document.getElementById('nav-'+k).setAttribute('aria-current', cur ? 'page' : 'false');
+    });
+    var cs = document.getElementById('csearch');
+    if (cs) cs.addEventListener('input', function(){ S.q = cs.value; document.getElementById('clist').innerHTML = contactRows(); });
     document.getElementById('hint').textContent = HINTS[S.scenario];
     var ed = document.getElementById('edit');
     if (ed) ed.addEventListener('input', function(){
@@ -433,13 +582,24 @@ body{margin:0}
   }
 
   app.addEventListener('click', function(e){ var t = e.target.closest('[data-act]'); if (t) act(t.getAttribute('data-act'), t.getAttribute('data-id')); });
-  document.querySelector('.side').addEventListener('click', function(e){ var t = e.target.closest('[data-act]'); if (t) act(t.getAttribute('data-act'), null); });
+  document.querySelector('.side').addEventListener('click', function(e){ var t = e.target.closest('[data-act]'); if (t) act(t.getAttribute('data-act'), t.getAttribute('data-id')); });
 
   function act(a, id){
     switch(a){
-      case 'go-dash': S.screen='dash'; S.support=false; render(); break;
-      case 'menu': toast('This menu item is not part of the mockup. Use Dashboard.'); break;
-      case 'open': S.cur=id; S.screen='detail'; render(); break;
+      case 'go-dash': S.screen='dash'; S.from='dash'; S.support=false; render(); break;
+      case 'nav': S.screen=id; S.support=false; render(); break;
+      case 'back': S.screen=S.from||'dash'; S.support=false; render(); break;
+      case 'toast': toast(id); break;
+      case 'new-campaign': S.newCamp=true; render(false); toast('Draft added in this mockup. Nothing was created in Cheerio.'); break;
+      case 'camp-filter': S.camp=id; render(false); break;
+      case 'bot-toggle': S.bots[id]=!S.bots[id]; render(false); toast('Demo only. No real chatbot was changed.'); break;
+      case 'auto-toggle': S.autos[id]=!S.autos[id]; render(false); toast('Demo only. No real automation was changed.'); break;
+      case 'tag': S.tag=id; render(false); break;
+      case 'contact-reset': S.tag='All'; S.q=''; render(false); break;
+      case 'acamp': S.acamp=id; render(false); break;
+      case 'learn-nav': S.planNote=!S.planNote; render(false); break;
+      case 'undo-nav': delete S.dismissed[id]; if (S.noticeId===id) S.noticeId=null; render(false); break;
+      case 'open': S.from=S.screen; S.cur=id; S.screen='detail'; render(); break;
       case 'start': S.screen='setup'; S.failShown=false; S.support=false; render(); break;
       case 'back-detail': S.screen='detail'; render(); break;
       case 'save':
